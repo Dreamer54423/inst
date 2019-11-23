@@ -19,7 +19,7 @@ const bodyParser = require('body-parser') // zapusk bodyParser (obrabatyvaet pos
 // GET = req.query
 // POST = req.body
 
-
+server.use(express.static('public/'))// otkryvaet papku public polyovatelyu
 server.use(bodyParser.urlencoded()) //ne ponimayu etu chast
 //use() для  приложения Express с аргументом, в котором указан URL-путь, что добавит  Router к пути обработки промежуточного слоя????
 
@@ -35,6 +35,8 @@ const db = {
 
 //signup 1
 server.get('/signup', signUp)// vyzov funkcii signUp, kogda vvoditsya zapros .../signup
+
+server.get('/upload', upload)// vyzov funkcii upload, kogda vvoditsya zapros .../upload
 
 // login 2
 server.get('/login', logIn) // vyzov funkcii login, kogda vvoditsya zapros .../logIn
@@ -82,8 +84,9 @@ mongo.connect('mongodb+srv://Nika:Dreamer54423@cluster0-jheeu.mongodb.net/',{use
 
 server.get('*', notFound)
 
-server.listen(80, listen)//zapusk servera v 80 kanale
-
+function upload(req, res){
+    res.sendFile(__dirname + '/public/upload.html')
+}
 
 function listen (){
     console.log("hey")
@@ -124,10 +127,11 @@ function connect(err, client){
     //     process.exit(0)//vykluchaet progrmmu,(0)-vykl pogu, (1)-vykl s oshibloy, (-*)/ toge oshibka
     // }
 
+
     if (err != null) process.exit(-1) //??? vyhod iz node.js???
     console.log('conected')
-    db.base = client.db('Instagram')//podkluchwnie baze dannych papki instagram
-
+    db.base = client.db('instagram')//podkluchwnie baze dannych papki instagram
+    server.listen(80, listen)
 }
 
 
@@ -200,8 +204,8 @@ async function apiLogIn(req, res){// async prosto ukazyvaet funkcii s await, cht
 
     oldUser[0].hash = hash //priravnivaet hassh oldusera k hashu sessii
 
-    res.redirect("/account")
     return res.send({response:{code:200, message: oldUser[0]}}) // vozvrashaet kod uspeha
+
 
 }
 
@@ -266,7 +270,7 @@ async function apiUploadPhoto(req, res){
       return
     }
 
-    let user = await db.base.collection('sessions').find({hash: user.hash}).toArray()
+    user = await db.base.collection('sessions').find({hash: user.hash}).toArray()
 
     let file = {
         id: req.file.filename,// file???
@@ -302,8 +306,44 @@ if (user.username === undefined) {
     return res.send({response: {code:200 ,  message: posts}})
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // request: hash=string
 // response: error={code=id, description=string}, response={code=int, message={user:user(name, username, mail), posts: [..posts]}}
 async function getMe(req, res) {
+    const user = req.query
+        let result = await checkLogin(user.hash, res) // proverka loginas.
+        if(result != 200) return;
 
+        result = await db.base.collection('sessions').find({hash: user.hash}).toArray()
+        let username = result[0].username
+        result = await db.base.collection('users').find({username: username}).toArray()
+        let posts = await db.base.collection('posts').find({username: username}).toArray()
+
+        delete result[0].password
+        delete result[0]._id
+        return res.send({code: 200, message: {user: result[0], posts: posts}})
 }

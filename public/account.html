@@ -10,20 +10,7 @@
     </div>
   </body>
 
-  <script type="text/javascript">
-  const div = document.getElementById('posts')
-    async function load() {
-      let res = await fetch('/api/post/get?username=admin&hash=e75308c8be22553243c167c07d22f036')
-      let data = await res.json()//{respose:{code: 200} }, {error...}
-      if (data.error != null) {
-        div.innerHTML = "Error"
-      } else {
-        div.innerHTML = data.response.message
-      }
-
-      console.log(data);
-    }
-
-    load()
-  </script>
+  <script type="text/javascript" src='./js/cookie.js'></script>
+  <script src='./js/account.js'></script>
+  
 </html>
