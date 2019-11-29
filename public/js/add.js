@@ -59,8 +59,18 @@ async function send(){
     url= url.replace('%photos%', getPhotos())
     let result = await fetch(url)
     result = await result.json()
-    //todo proverka esli 400 oshibka esli 200 ok
+
+
+    if (result.error != undefined){
+        alert('please, select photo')
+    }
+
+   else { window.location = '/main'}     //nado sozdat?
 }
+
+//todo proverka esli 400 oshibka esli 200 ok
+
+
 
 function getPhotos() {
     let elements = document.getElementsByClassName('dark')
