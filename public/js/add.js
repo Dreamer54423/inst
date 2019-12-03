@@ -1,6 +1,8 @@
 const photos = document.getElementById('photos')
 const button = document.getElementById('button')
 const caption = document.getElementById('caption')
+
+
 checkLogin();
 
 let marker = null;
@@ -49,14 +51,15 @@ function pick(event) {
         }
 }
 
-
 button.addEventListener('click', send)
 
 async function send(){
+
     let url = '/api/post/create?hash=%hash%&photos=%photos%&caption=%caption%&location=%location%'
     url= url.replace('%hash%', getCookie('hash'))
     url= url.replace('%caption%', caption.value)
     url= url.replace('%photos%', getPhotos())
+    url= url.replace('%location%', marker.position.lat() + ',' + marker.position.lng())
     let result = await fetch(url)
     result = await result.json()
 
@@ -65,12 +68,8 @@ async function send(){
         alert('please, select photo')
     }
 
-   else { window.location = '/main'}     //nado sozdat?
+   else { window.location = '/account'}
 }
-
-//todo proverka esli 400 oshibka esli 200 ok
-
-
 
 function getPhotos() {
     let elements = document.getElementsByClassName('dark')
